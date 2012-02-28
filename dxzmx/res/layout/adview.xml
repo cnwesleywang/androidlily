@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" android:background="#FF000000">
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="成功安装任意一款推荐软件即可永久移除广告窗口，您也可以选择不安装任何软件直接查看结果。"
+        android:textAppearance="?android:attr/textAppearanceMedium" android:textColor="#FFFFFFFF"/>
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="#FF8c8c8c">
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+    
+    <ImageView
+        android:id="@+id/idadicon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_marginRight="5dip"/>
+
+    <TextView
+        android:id="@+id/idadtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+	</LinearLayout>
+    <TextView
+        android:id="@+id/idadtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+
+</LinearLayout>
