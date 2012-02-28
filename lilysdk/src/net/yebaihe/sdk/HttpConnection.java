@@ -53,7 +53,6 @@ public class HttpConnection implements Runnable {
 	private String data;
 
 	private DefaultHttpClient httpClient = new DefaultHttpClient();
-	private Context mCtx;
 	private String encoding="";
 	private String referer="";
 	private int progressMode=0;
@@ -61,19 +60,16 @@ public class HttpConnection implements Runnable {
 
 	public HttpConnection(Context ctx, Handler _handler) {
 		handler = _handler;
-		mCtx=ctx;
 	}
 
 	public HttpConnection(Context ctx, Handler _handler, String string) {
 		handler = _handler;
-		mCtx=ctx;
 		encoding=string;
 	}
 
 	public HttpConnection(Context ctx, Handler _handler, String string,
 			String string2) {
 		handler = _handler;
-		mCtx=ctx;
 		encoding=string;
 		referer=string2;
 	}
@@ -209,7 +205,7 @@ public class HttpConnection implements Runnable {
 		in.close();
 		out.flush();
 		out.close();
-		handler.sendMessage(Message.obtain(handler, DID_SUCCEED, null));
+		handler.sendMessage(Message.obtain(handler, DID_SUCCEED, data));
 	}
 
 	private void processEntity(HttpEntity entity) throws IllegalStateException,

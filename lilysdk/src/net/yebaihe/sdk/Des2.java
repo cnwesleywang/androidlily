@@ -70,7 +70,7 @@ public class Des2
     {
         try
         {
-        	SecureRandom sr = new SecureRandom();
+        	new SecureRandom();
 	    	DESKeySpec dks = new DESKeySpec(key.getBytes());
 	    	SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
             //key的长度不能够小于8位字节

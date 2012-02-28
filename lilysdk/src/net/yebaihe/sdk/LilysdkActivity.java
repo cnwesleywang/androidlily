@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,8 +36,8 @@ import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,7 +68,7 @@ public class LilysdkActivity extends Activity {
 	protected Node curNode;
 	private ProgressBar lprogress;
 	private String apkName="unknown";
-	private ImageView ilogo;
+	private View ilogo;
 	private FrameLayout lflayout;
 	private View lnew;
 	private LinearLayout lapplayout;
@@ -92,7 +91,7 @@ public class LilysdkActivity extends Activity {
         
         lwebview.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         lprogress=(ProgressBar) this.findViewById(R.id.lprogressBar);
-        ilogo=(ImageView) this.findViewById(R.id.ilogo);
+        ilogo=this.findViewById(R.id.ilogo);
         
         TextView appname = (TextView)this.findViewById(R.id.idappname);
         appname.setText(this.getString(R.string.app_name));
@@ -252,10 +251,13 @@ public class LilysdkActivity extends Activity {
 	protected void showMessage(String url) {
 		lflayout.setVisibility(View.VISIBLE);
 		lapplayout.setVisibility(View.GONE);
+		LinearLayout.LayoutParams p=(LayoutParams) lapplayout.getLayoutParams();
+		p.weight=0;
 		changeToMainHandler.removeCallbacks(changeToMainRunnable);
 		changeToMainAfter(5000);
 		lwebview.setVisibility(View.VISIBLE);
 		lwebview.loadUrl(url);
+		lapplayout.getParent().requestLayout();
 		Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 		lwebview.startAnimation(anim);
 	}
