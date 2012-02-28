@@ -202,7 +202,7 @@ public class DxzmxActivity extends Activity implements OnClickListener, UpdatePo
 			if (idx<pointpos){
 				if (value.length()>idx+1){
 					if ((value.charAt(idx+1)!='0') && (value.charAt(idx+1)!='.')){
-						ret+="零";
+						if (delta%4!=1) ret+="零";
 					}
 				}
 			}
