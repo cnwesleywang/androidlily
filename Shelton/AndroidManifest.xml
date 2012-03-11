@@ -4,11 +4,21 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="15" />
-
+    <uses-sdk android:minSdkVersion="7" />
+    <uses-permission android:name="android.permission.INTERNET" /> 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> 
+    <uses-permission android:name="android.permission.GET_TASKS" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
+        
+        <activity android:name="com.waps.OffersWebView"  android:configChanges="keyboardHidden|orientation" />
+		<meta-data android:name="WAPS_ID" android:value="43e4bad9a113806888413218390d0cb5" />
+        
         <activity
             android:name=".SheltonActivity"
             android:label="@string/app_name" >

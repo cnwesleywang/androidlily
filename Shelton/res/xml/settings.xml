@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="设置"
+        android:key="base">
+	<PreferenceCategory android:title="摇动手机效果">
+    	<CheckBoxPreference android:title="鞭子" android:summary="甩起来的鞭子" android:enabled="true" android:defaultValue="true" android:key="enabled1" ></CheckBoxPreference>
+	    <CheckBoxPreference android:title="开启更多效果" android:summary="动画效果未开启" android:enabled="true" android:defaultValue="false" android:key="unlocked" ></CheckBoxPreference>
+		<CheckBoxPreference android:title="手枪" android:summary="干净利落的一击" android:enabled="false" android:defaultValue="false" android:key="enabled2" ></CheckBoxPreference>
+		<CheckBoxPreference android:title="敲打" android:summary="甭管什么手机当砖头用" android:enabled="false" android:defaultValue="false" android:key="enabled3" ></CheckBoxPreference>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="按键效果（手机音量键）">
+	    <CheckBoxPreference android:title="电钻" android:summary="持续发力的钻头" android:enabled="false" android:defaultValue="false" android:key="enabled4" ></CheckBoxPreference>
+		<CheckBoxPreference android:title="机关枪" android:summary="火力更猛的冲击" android:enabled="false" android:defaultValue="false" android:key="enabled5" ></CheckBoxPreference>
+	</PreferenceCategory>
+</PreferenceScreen>
