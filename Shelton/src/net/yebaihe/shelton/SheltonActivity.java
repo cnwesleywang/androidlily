@@ -19,8 +19,6 @@ import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class SheltonActivity extends PreferenceActivity implements OnPreferenceChangeListener{
@@ -30,9 +28,7 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
     		//{raw,type 1 continue 2 single,length msec}
     		{R.raw.whip,1,2000},
     		{R.raw.gun,1,2000},
-    		{R.raw.nail,1,2000},
-    		{R.raw.sharpener,2,1000},
-    		{R.raw.submachinegun,2,2000},
+    		{R.raw.submachinegun,2,710},
     };
     protected  int  TOTAL_PARTICLE_NUM=DEFINES.length;
     protected ArrayList<Integer> reses=new ArrayList<Integer>();
@@ -78,17 +74,18 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	private Runnable playRunnable=new Runnable(){
 		@Override
 		public void run() {
-			if ((playIdx<=2) && (!inShaking)) return;
-			if ((playIdx>2) && (inShaking)) return;
+			if ((playIdx<=1) && (!inShaking)) return;
+			if ((playIdx>1) && (inShaking)){
+				inShaking=false;
+				return;
+			}
 			if (playing){
 				snd.play(reses.get(playIdx),1, 1, 0, 0, 1);
-				if ((DEFINES[playIdx][1]==1) && (!inShaking)){
+				if ((DEFINES[playIdx][1]==2) && (!inShaking)){
 					playHandler.postDelayed(playRunnable, DEFINES[playIdx][2]);
 				}
-				else{
-					inShaking=false;
-				}
 			}
+			inShaking=false;
 		}
 	};
 	private net.yebaihe.shelton.ShakeListener mShake;
@@ -148,7 +145,7 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 
 	@Override
 	public boolean onPreferenceChange(Preference arg0, Object arg1) {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
         if (settings.getBoolean("unlocked",false)){
     		if (arg0.getKey().startsWith("enable")) updateSetting(arg0,arg1);
         	return true;
@@ -157,7 +154,7 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
         if (arg0.getKey().startsWith("enable")) return false;
         
         new AlertDialog.Builder(SheltonActivity.this).setTitle("需要积分")
-		.setMessage("解锁动画效果只需要50个积分，而积分的获得是完全免费的！如果您已经获得了积分请直接点解锁!")
+		.setMessage("解锁全部效果只需要50个积分，而积分的获得是完全免费的！如果您已经获得了积分请直接点解锁!")
 		.setPositiveButton("免费获取", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
@@ -177,6 +174,9 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode==KeyEvent.KEYCODE_BACK){
+			return super.onKeyUp(keyCode, event);
+		}
 		if (playing) return true;
 		if ((keyCode==KeyEvent.KEYCODE_VOLUME_UP)||(keyCode==KeyEvent.KEYCODE_VOLUME_DOWN)){
 			startPlayTone();
@@ -188,7 +188,7 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode==KeyEvent.KEYCODE_BACK){
-			super.onKeyUp(keyCode, event);
+			finish();
 			return true;
 		}
 		
@@ -220,6 +220,7 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	}
 
 	private void updateSetting(Preference currpref, Object currvalue) {
+		
 		Log.d("", ""+currpref+":"+currvalue);
 		Boolean b=(Boolean)currvalue;
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  

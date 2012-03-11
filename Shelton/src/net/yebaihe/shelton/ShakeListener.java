@@ -11,7 +11,7 @@ public class ShakeListener implements SensorEventListener {
 	private static final int FORCE_THRESHOLD = 350;
 	private static final int TIME_THRESHOLD = 100;
 	private static final int SHAKE_TIMEOUT = 500;
-	private static final int SHAKE_DURATION = 1000;
+	public int SHAKE_DURATION = 1000;
 	private static final int SHAKE_COUNT = 3;
 
 	private SensorManager mSensorMgr;
