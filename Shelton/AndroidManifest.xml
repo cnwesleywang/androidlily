@@ -18,7 +18,7 @@
         
         <activity android:name="com.waps.OffersWebView"  android:configChanges="keyboardHidden|orientation" />
 		<meta-data android:name="WAPS_ID" android:value="89c0a7579b635f31bbb7f4c61424aca7" />
-		<meta-data android:name="WAPS_PID"      android:value="gfan" />        
+		<meta-data android:name="WAPS_PID"      android:value="hiapk" />        
 		
         <activity
             android:name=".SheltonActivity"

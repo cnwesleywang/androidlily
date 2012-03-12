@@ -188,6 +188,7 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode==KeyEvent.KEYCODE_BACK){
+			mShake.pause();
 			finish();
 			return true;
 		}
