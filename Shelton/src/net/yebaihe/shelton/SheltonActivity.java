@@ -2,30 +2,31 @@ package net.yebaihe.shelton;
 
 import java.util.ArrayList;
 
-import com.waps.AdView;
 import com.waps.AppConnect;
 import com.waps.UpdatePointsNotifier;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.Toast;
 
-public class SheltonActivity extends PreferenceActivity implements OnPreferenceChangeListener{
+public class SheltonActivity extends Activity implements  OnTabChangeListener{
     protected static final String PREFS_NAME = "livepref";
     protected static int  FREE_PARTICLE_COUNT=1;
     protected int [][] DEFINES={
-    		//{raw,type 1 continue 2 single,length msec}
     		{R.raw.whip,1,2000},
     		{R.raw.gun,1,2000},
     		{R.raw.submachinegun,2,710},
@@ -43,14 +44,6 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 					SharedPreferences.Editor editor = settings.edit();  
 					editor.putBoolean("unlocked", true);  
 					editor.commit();
-					{
-						Preference pref = (Preference) findPreference("unlocked");
-						pref.setEnabled(false);
-					}
-		        	for (int i=FREE_PARTICLE_COUNT;i<TOTAL_PARTICLE_NUM;i++){
-		                Preference pref = (Preference) findPreference("enabled"+(i+1));
-		                pref.setEnabled(true);
-		        	}
 					Toast.makeText(SheltonActivity.this, "已解锁", Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -91,35 +84,37 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	private net.yebaihe.shelton.ShakeListener mShake;
 	protected boolean inShaking=false;
 
+	
+	class GetCSDNLogoTask extends AsyncTask<String,Integer,Bitmap> {//继承AsyncTask  
+		  
+        @Override  
+        protected Bitmap doInBackground(String... params) {//处理后台执行的任务，在后台线程执行  
+            return null;  
+        }            
+          
+    }  
+	
+	
+	TabHost tabHost;
+	
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AppConnect.getInstance(this);
-        getPreferenceManager().setSharedPreferencesName(
-        		PREFS_NAME);
-        addPreferencesFromResource(R.xml.settings);
-        //AppConnect.getInstance(this).awardPoints(1000, null);
-        //setTheme(android.R.style.the);
         setContentView(R.layout.main);
-        Preference mPref = (Preference) findPreference("unlocked");
-        mPref.setOnPreferenceChangeListener(this);
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
-    	for (int i=0;i<TOTAL_PARTICLE_NUM;i++){
-            Preference pref = (Preference) findPreference("enabled"+(i+1));
-            pref.setOnPreferenceChangeListener(this);
-    	}
-        if (settings.getBoolean("unlocked",false)){
-        	mPref.setSummary("已解锁");
-        	mPref.setEnabled(false);
-        	for (int i=FREE_PARTICLE_COUNT;i<TOTAL_PARTICLE_NUM;i++){
-                Preference pref = (Preference) findPreference("enabled"+(i+1));
-                pref.setEnabled(true);
-        	}
-        }
-        //LinearLayout container =(LinearLayout)findViewById(R.id.AdLinearLayout);
-        //new AdView(this,container).DisplayAd(20);
 
+        View btnNearBy=LayoutInflater.from(this).inflate(R.layout.btn01, null);
+        View btnHots=LayoutInflater.from(this).inflate(R.layout.btn02, null);
+        View btnDiscount=LayoutInflater.from(this).inflate(R.layout.btn03, null);
+        
+        tabHost=(TabHost) findViewById(R.id.mytabhost);
+        tabHost.setup();
+        tabHost.addTab(tabHost.newTabSpec("b01").setContent(R.id.tab1).setIndicator(btnNearBy));
+        tabHost.addTab(tabHost.newTabSpec("b02").setContent(R.id.tab2).setIndicator(btnHots));
+        tabHost.addTab(tabHost.newTabSpec("b03").setContent(R.id.tab3).setIndicator(btnDiscount));
+        tabHost.setOnTabChangedListener(this);
+        
         snd = new SoundPool(2, AudioManager.STREAM_SYSTEM,0);
         for (int i=0;i<DEFINES.length;i++){
         	reses.add(snd.load(this, DEFINES[i][0], 0));
@@ -143,35 +138,6 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
     	super.onBackPressed();
     }
 
-	@Override
-	public boolean onPreferenceChange(Preference arg0, Object arg1) {
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
-        if (settings.getBoolean("unlocked",false)){
-    		if (arg0.getKey().startsWith("enable")) updateSetting(arg0,arg1);
-        	return true;
-        }
-        
-        if (arg0.getKey().startsWith("enable")) return false;
-        
-        new AlertDialog.Builder(SheltonActivity.this).setTitle("需要积分")
-		.setMessage("解锁全部效果只需要50个积分，而积分的获得是完全免费的！如果您已经获得了积分请直接点解锁!")
-		.setPositiveButton("免费获取", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				AppConnect.getInstance(SheltonActivity.this).showOffers(SheltonActivity.this);
-			}
-		})
-		.setNegativeButton("解锁", new DialogInterface.OnClickListener(){
-
-			@Override
-			public void onClick(DialogInterface dialog,
-					int which) {
-				AppConnect.getInstance(SheltonActivity.this).spendPoints(50,unlockCallback);
-			}
-		}).create().show();
-		return false;
-	}
-	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode==KeyEvent.KEYCODE_BACK){
@@ -206,47 +172,42 @@ public class SheltonActivity extends PreferenceActivity implements OnPreferenceC
 	}
 
 	private void startPlayTone() {
-		playIdx=-1;
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
-		for (int i=0;i<DEFINES.length;i++){
-			if (settings.getBoolean("enabled"+(i+1), false)){
-				playIdx=i;
-				break;
-			}
-		}
+		playIdx=tabHost.getCurrentTab();
 		if (playIdx>=0){
 			playing=true;
 			playHandler.post(playRunnable);
 		}
 	}
 
-	private void updateSetting(Preference currpref, Object currvalue) {
-		
-		Log.d("", ""+currpref+":"+currvalue);
-		Boolean b=(Boolean)currvalue;
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
-		SharedPreferences.Editor editor = settings.edit();  
-		if (b){
-	    	for (int i=0;i<TOTAL_PARTICLE_NUM;i++){
-	    		String key="enabled"+(i+1);
-	    		if (!key.equals(currpref.getKey())){
-	    			editor.putBoolean(key, false);
-	    			CheckBoxPreference box=(CheckBoxPreference)findPreference(key);
-	    			box.setChecked(false);
-	    		}
-	    	}
-		}
-		else{
-	    	for (int i=0;i<TOTAL_PARTICLE_NUM;i++){
-	    		String key="enabled"+(i+1);
-	    		boolean value=false;
-	            if (i==0) value=true;
-	            editor.putBoolean(key, value);
-    			CheckBoxPreference box=(CheckBoxPreference)findPreference(key);
-    			box.setChecked(value);
-	    	}
-		}
-		editor.commit();
-		
+
+	@Override
+	public void onTabChanged(String arg0) {
+        if (arg0.equals("b01")) return;
+        
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
+        if (settings.getBoolean("unlocked",false)){
+        	return;
+        }
+        
+        new AlertDialog.Builder(SheltonActivity.this).setTitle("需要积分")
+		.setMessage("解锁全部效果只需要50个积分，而积分的获得是完全免费的！如果您已经获得了积分请直接点解锁!")
+		.setPositiveButton("免费获取", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				AppConnect.getInstance(SheltonActivity.this).showOffers(SheltonActivity.this);
+			}
+		})
+		.setNegativeButton("解锁", new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog,
+					int which) {
+				AppConnect.getInstance(SheltonActivity.this).spendPoints(50,unlockCallback);
+			}
+		})
+		.create().show();
+        
+        tabHost.setCurrentTab(0);
+        
 	}
 }
