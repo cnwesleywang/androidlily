@@ -71,7 +71,7 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 				float dsty=y+DeltaHeight/2;
 				
 				p.addImage(bitmap,PuzzleActivity.this.getResources(),dstx,dsty);
-				bitmaps.remove(bitmap);
+				adapt.bitmaps.remove(bitmap);
 				int sel=g.getSelectedItemPosition();
 				g.setAdapter(adapt);
 				if (sel<g.getAdapter().getCount()){
@@ -88,10 +88,10 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 	}
 	public  int DeltaWidth = 0;
 	public  int DeltaHeight = 0;
-	public ArrayList<Bitmap> bitmaps=new ArrayList<Bitmap>();
-	private HashMap<Bitmap,Integer>bmphash=new HashMap<Bitmap,Integer>();
 	
 	class ImageAdapter extends BaseAdapter{
+		public ArrayList<Bitmap> bitmaps=new ArrayList<Bitmap>();
+		private HashMap<Bitmap,Integer>bmphash=new HashMap<Bitmap,Integer>();
 		private Context mContext;  
 		
 		public int getBitmapHash(Bitmap b){
@@ -189,9 +189,9 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         
         g = new DraggableItemGallery(this);
         g.setSpacing(3);
-        adapt=new ImageAdapter(this);
-        g.setAdapter(adapt);
-		if (g.getAdapter().getCount()>0) g.setSelection(g.getAdapter().getCount()/2);
+        //adapt=new ImageAdapter(this);
+        //g.setAdapter(adapt);
+		//if (g.getAdapter().getCount()>0) g.setSelection(g.getAdapter().getCount()/2);
         
         cnt=(LinearLayout)this.findViewById(R.id.cnt);
         ll=new LinearLayoutChange(this);
@@ -208,11 +208,11 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         	adheight=120;
         }
         else if (display.getWidth()>=600){
-        	adheight=90;
+        	adheight=96;
         }
         toplevel.updateViewLayout(lad, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,adheight));
         
-        toplevel.addView(g,1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT));  
+        toplevel.addView(g,1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,150));  
         
     }
 	public void layoutSizeChange() {
@@ -270,12 +270,16 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 		
 		toplevel.updateViewLayout(cnt, new LinearLayout.LayoutParams(cnt.getWidth(),cnt.getHeight()));
 		
-		for (int i=0;i<bitmaps.size();i++){
+		//bitmaps.clear();
+		//bmphash.clear();
+		/*for (int i=0;i<bitmaps.size();i++){
 			int hash=bmphash.get(bitmaps.get(i));
 			bitmaps.set(i, Bitmap.createScaledBitmap(bitmaps.get(i), DeltaWidth, DeltaHeight, true));
 			bmphash.put(bitmaps.get(i), hash);
-		}
-		g.setAdapter(new ImageAdapter(this));
+		}*/
+		adapt=new ImageAdapter(this);
+		g.setAdapter(adapt);
+		g.invalidate();
         if (adapt.getCount()>0) g.setSelection(adapt.getCount()/2);
 	}
 }
