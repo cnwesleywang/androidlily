@@ -385,5 +385,11 @@ public class PhotoSorterView extends View implements MultiTouchObjectCanvas<Phot
 		return fixedImg.size()==mImages.size();
 	}
 
+	public void clearAllImage() {
+		fixedImg.clear();
+		mImages.clear();
+		invalidate();
+	}
+
 	// ----------------------------------------------------------------------------------------------
 }

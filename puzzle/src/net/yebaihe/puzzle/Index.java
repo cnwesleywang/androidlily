@@ -17,6 +17,16 @@ public class Index extends Activity implements OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.index);
+        updateBtnState();
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	updateBtnState();
+    }
+
+	private void updateBtnState() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
         int passedlevel = settings.getInt("passed",0); 
     	Button level1=(Button)this.findViewById(R.id.btnlevel1);
@@ -32,7 +42,7 @@ public class Index extends Activity implements OnClickListener{
         	level3.setEnabled(true);
         	level3.setOnClickListener(this);
         }
-    }
+	}
 
 	@Override
 	public void onClick(View arg0) {

@@ -7,17 +7,17 @@ import java.util.HashMap;
 import net.yebaihe.puzzle.MultiTouchController.PointInfo;
 import net.yebaihe.puzzle.PhotoSorterView.Img;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +34,6 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 
 		public MyDragableView(Bitmap bitmap) {
 			super(PuzzleActivity.this);
-			//this.setDrawingCacheEnabled(true);
 			this.setImageBitmap(bitmap);
 			this.setScaleType(ImageView.ScaleType.FIT_XY);
 			this.bitmap=bitmap;
@@ -82,6 +81,7 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 						g.setSelection(g.getAdapter().getCount()/2);
 					}
 				}
+				checkLevelPassed();
 			}
 		}
 		
@@ -100,13 +100,13 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 		
 		public ImageAdapter(Context c) {
 			mContext = c;  
-			Bitmap b=BitmapFactory.decodeResource(getResources(), R.drawable.r01);
-			int w=b.getWidth()/3;
-			int h=b.getHeight()/3;
-			for (int i=0;i<9;i++){
+			Bitmap b=BitmapFactory.decodeResource(getResources(), R.drawable.b01+currLevel);
+			int w=b.getWidth()/pieceCount;
+			int h=b.getHeight()/pieceCount;
+			for (int i=0;i<pieceCount*pieceCount;i++){
 				Bitmap bmp=Bitmap.createBitmap(w, h, Config.ARGB_8888);
 				Canvas cv = new Canvas(bmp); 
-				cv.drawBitmap(b, new Rect((i%3)*w,(i/3)*h,(i%3+1)*w,(i/3+1)*h), new Rect(0,0,w,h), null);
+				cv.drawBitmap(b, new Rect((i%pieceCount)*w,(i/pieceCount)*h,(i%pieceCount+1)*w,(i/pieceCount+1)*h), new Rect(0,0,w,h), null);
 				Bitmap piece=Bitmap.createScaledBitmap(bmp, DeltaWidth, DeltaHeight, true);
 				bitmaps.add(piece);
 				bmphash.put(piece, i);
@@ -173,6 +173,9 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 	private boolean initedmargin=false;
 	LinearLayout toplevel;
 	LinearLayout cnt;
+	private int currLevel=0;
+	private boolean levelPassed=false;
+	private int pieceCount=3;
 	
     /** Called when the activity is first created. */
     @Override
@@ -180,8 +183,11 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+		currLevel=getIntent().getIntExtra("level", 0);
+		pieceCount=3+currLevel/9;
+		
         Display display = getWindowManager().getDefaultDisplay();
-		DeltaWidth=display.getWidth()/3;
+		DeltaWidth=display.getWidth()/pieceCount;
 		DeltaHeight=DeltaWidth;//display.getHeight()/3;
         
         p=new PhotoSorterView(this);
@@ -189,9 +195,6 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         
         g = new DraggableItemGallery(this);
         g.setSpacing(3);
-        //adapt=new ImageAdapter(this);
-        //g.setAdapter(adapt);
-		//if (g.getAdapter().getCount()>0) g.setSelection(g.getAdapter().getCount()/2);
         
         cnt=(LinearLayout)this.findViewById(R.id.cnt);
         ll=new LinearLayoutChange(this);
@@ -231,8 +234,8 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 	@Override
 	public void imagePositionChange(Img img, float x, float y,PointInfo touchPoint) {
 		int pos=adapt.getBitmapHash(img.bitmap);
-		int goodx=(pos % 3) * DeltaWidth;
-		int goody=(pos / 3) * DeltaHeight;
+		int goodx=(pos % pieceCount) * DeltaWidth;
+		int goody=(pos / pieceCount) * DeltaHeight;
 		int curx=(int) (x-DeltaWidth/2);
 		int cury=(int) (y-DeltaHeight/2);
 		int delta=Math.max(Math.abs(goodx-curx),Math.abs(goody-cury));
@@ -253,10 +256,61 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 				p.setImgPosition(img,setx,sety,false);
 			}
 		}
-		
-		if (p.allFixed()){
-			//TODO next level!
+
+		checkLevelPassed();
+	}
+	
+	private void checkLevelPassed() {
+		if (levelPassed) return;
+		if ((adapt.bitmaps.size()==0) && p.allFixed()){
+			levelPassed=true;
+	        SharedPreferences settings = getSharedPreferences(Index.PREFS_NAME, 0);  
+	        int passedlevel = settings.getInt("passed",0); 
+			if (currLevel<=passedlevel){
+				Editor edit = settings.edit();
+				edit.putInt("passed", currLevel+1);
+				edit.commit();
+			}
+			currLevel+=1;
+			if (currLevel%9==0){
+				new AlertDialog.Builder(this).setTitle("过关")
+				.setMessage("您已经过完本级别所有的关卡，真厉害!")
+				.setPositiveButton("关闭", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						setResult(RESULT_OK);
+						finish();
+						return;
+					}
+				})
+				.create().show();
+			}
+			else{
+				new AlertDialog.Builder(this).setTitle("过关")
+				.setMessage("好棒呀，要继续吗？")
+				.setPositiveButton("下一关", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						if (currLevel%9==0){
+							setResult(RESULT_OK);
+							finish();
+							return;
+						}
+						levelPassed=false;
+						p.clearAllImage();
+						inited=false;
+						sizeChanged();
+					}
+				})
+				.setNegativeButton("关闭", null)
+				.create().show();
+			}
 		}
+	}
+	@Override
+	public void onBackPressed(){
+		this.setResult(RESULT_CANCELED);
+		finish();
 	}
 	
 	@Override
@@ -265,18 +319,11 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 		if (inited) return;
 		inited=true;
 		
-		DeltaWidth=p.getWidth()/3;
-		DeltaHeight=p.getHeight()/3;
+		DeltaWidth=p.getWidth()/pieceCount;
+		DeltaHeight=p.getHeight()/pieceCount;
 		
 		toplevel.updateViewLayout(cnt, new LinearLayout.LayoutParams(cnt.getWidth(),cnt.getHeight()));
 		
-		//bitmaps.clear();
-		//bmphash.clear();
-		/*for (int i=0;i<bitmaps.size();i++){
-			int hash=bmphash.get(bitmaps.get(i));
-			bitmaps.set(i, Bitmap.createScaledBitmap(bitmaps.get(i), DeltaWidth, DeltaHeight, true));
-			bmphash.put(bitmaps.get(i), hash);
-		}*/
 		adapt=new ImageAdapter(this);
 		g.setAdapter(adapt);
 		g.invalidate();

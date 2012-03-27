@@ -16,6 +16,7 @@ import android.view.View;
 
 public class SubIndex extends Activity{
 	private static final int RESBASE = R.drawable.b01;
+	private int currBigLevel=0;
 
 	/** Called when the activity is first created. */
     @Override
@@ -23,15 +24,35 @@ public class SubIndex extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.subindex);
         GridView gridview=(GridView)this.findViewById(R.id.gridView);
+        currBigLevel=this.getIntent().getIntExtra("level", 0);
         
+        updateGridContent();
+        gridview.setOnItemClickListener(new OnItemClickListener() { 
+        	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) { 
+                int level=getIntent().getIntExtra("level", 0);
+        		Intent i=new Intent(SubIndex.this,PuzzleActivity.class);
+        		i.putExtra("level", level*9+arg2);
+        		startActivityForResult(i, 1);
+        	} 
+        }); 
+        
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	updateGridContent();
+    }
+    
+    private void updateGridContent() {
         SharedPreferences settings = getSharedPreferences(Index.PREFS_NAME, 0);  
         int passedlevel = settings.getInt("passed",0); 
-        int level=this.getIntent().getIntExtra("level", 0);
         
+        GridView gridview=(GridView)this.findViewById(R.id.gridView);
         ArrayList<HashMap<String, Object>> meumList = new ArrayList<HashMap<String, Object>>();
         for(int i = 0;i<9;i++) { 
             HashMap<String, Object> map = new HashMap<String, Object>(); 
-            if (i+level*9<=passedlevel){
+            if (i+currBigLevel*9<=passedlevel){
                 map.put("ItemImage", R.drawable.big02); 
             }
             else{
@@ -46,14 +67,13 @@ public class SubIndex extends Activity{
         		new String[]{"ItemImage",}, //对应map的Key 
         		new int[]{R.id.ItemImage,});  //对应R的Id 
         gridview.setAdapter(saMenuItem); 
-        gridview.setOnItemClickListener(new OnItemClickListener() { 
-        	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) { 
-                int level=getIntent().getIntExtra("level", 0);
-        		Intent i=new Intent(SubIndex.this,PuzzleActivity.class);
-        		i.putExtra("level", level*9+arg2);
-        		startActivity(i);
-        	} 
-        }); 
-        
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode,  
+            Intent data){
+    	if (resultCode==RESULT_OK){//已经过完整个Level
+    		finish();
+    	}
     }
+    
 }
