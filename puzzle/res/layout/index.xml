@@ -8,21 +8,21 @@
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical" android:layout_marginTop="60dip">
 
         <Button
             android:id="@+id/btnlevel1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dip"
-            android:background="@drawable/n1" />
+            android:background="@drawable/n1" android:layout_marginBottom="20dip"/>
 
         <Button
             android:id="@+id/btnlevel2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dip"
-            android:background="@drawable/n2" android:enabled="false"/>
+            android:background="@drawable/n2" android:enabled="false" android:layout_marginBottom="20dip"/>
 
         <Button
             android:id="@+id/btnlevel3"
