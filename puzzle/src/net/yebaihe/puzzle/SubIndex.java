@@ -29,10 +29,13 @@ public class SubIndex extends Activity{
         updateGridContent();
         gridview.setOnItemClickListener(new OnItemClickListener() { 
         	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) { 
-                int level=getIntent().getIntExtra("level", 0);
-        		Intent i=new Intent(SubIndex.this,PuzzleActivity.class);
-        		i.putExtra("level", level*9+arg2);
-        		startActivityForResult(i, 1);
+                SharedPreferences settings = getSharedPreferences(Index.PREFS_NAME, 0);  
+                int passedlevel = settings.getInt("passed",0); 
+                if (currBigLevel*9+arg2<=passedlevel){
+                	Intent i=new Intent(SubIndex.this,PuzzleActivity.class);
+                	i.putExtra("level", currBigLevel*9+arg2);
+                	startActivityForResult(i, 1);
+                }
         	} 
         }); 
         

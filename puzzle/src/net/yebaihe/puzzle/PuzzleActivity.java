@@ -12,12 +12,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.telephony.TelephonyManager;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -176,12 +181,16 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 	private int currLevel=0;
 	private boolean levelPassed=false;
 	private int pieceCount=3;
+	private String bywho="UnknownByWho";
+	private String bywhen="2003-08-08 17:12:12";
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        putAdInfo();
         
 		currLevel=getIntent().getIntExtra("level", 0);
 		pieceCount=3+currLevel/9;
@@ -218,6 +227,36 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         toplevel.addView(g,1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,150));  
         
     }
+    
+	public String getIMEI(Context context) {
+    	TelephonyManager telephonyManager=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+    	String imei=telephonyManager.getDeviceId();	  
+    	return imei;
+	}
+
+	
+	
+	private void putAdInfo() {
+		String data="";
+		data+="package="+getPackageName();
+		data+="&bywho="+bywho;
+		data+="&bywhen="+bywhen;
+		data+="&ad="+getDomodPid();
+		data+="&imei="+getIMEI(this);
+		new HttpConnection(this, new Handler()).post("http://lily.newim.net/appstore/adinfo.php", data);
+	}
+	private String getDomodPid() {
+		ApplicationInfo ai;
+		try {
+			ai = getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA);
+			Bundle aBundle=ai.metaData;
+			String aValue=aBundle.getString("DOMOB_PID");
+			return aValue;
+		} catch (NameNotFoundException e) {
+		}
+		return "";
+	}
+	
 	public void layoutSizeChange() {
 		if (initedmargin) return;
 		initedmargin=true;
