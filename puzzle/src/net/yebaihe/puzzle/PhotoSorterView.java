@@ -50,7 +50,7 @@ public class PhotoSorterView extends View implements MultiTouchObjectCanvas<Phot
 
 		public Bitmap bitmap;
 
-		private static final float SCREEN_MARGIN = 100;
+		private static final float SCREEN_MARGIN = 1;
 
 		public Img(Bitmap bitmap, Resources res) {
 			this.bitmap = bitmap;

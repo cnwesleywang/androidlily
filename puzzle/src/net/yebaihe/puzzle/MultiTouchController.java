@@ -283,6 +283,8 @@ public class MultiTouchController<T> {
                 // Don't do anything if we're not dragging anything
                 if (draggedObject == null)
                         return;
+                
+                Log.d("", "performDrag");
 
                 // Calc new position of dragged object
                 float scale = (objPosAndScale.scale == 0.0f ? 1.0f : objPosAndScale.scale);

@@ -23,6 +23,8 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,7 +139,7 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 		@Override
 		public View getView(int position, View arg1, ViewGroup arg2) {
 			MyDragableView i = new MyDragableView(bitmaps.get(position)); 
-			i.setLayoutParams(new Gallery.LayoutParams(150, 150));
+			i.setLayoutParams(new Gallery.LayoutParams(galleryHeight, galleryHeight));
 			i.setScaleType(ImageView.ScaleType.FIT_XY);
 			return i;  
 		}
@@ -183,6 +185,8 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 	private int pieceCount=3;
 	private String bywho="UnknownByWho";
 	private String bywhen="2003-08-08 17:12:12";
+	int galleryHeight=150;
+	private int minAutoPlaceDelta=15;
 	
     /** Called when the activity is first created. */
     @Override
@@ -198,7 +202,9 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         Display display = getWindowManager().getDefaultDisplay();
 		DeltaWidth=display.getWidth()/pieceCount;
 		DeltaHeight=DeltaWidth;//display.getHeight()/3;
-        
+		galleryHeight = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
+		minAutoPlaceDelta=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics());
+		
         p=new PhotoSorterView(this);
         p.delegate=this;
         
@@ -223,9 +229,8 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
         	adheight=96;
         }
         toplevel.updateViewLayout(lad, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,adheight));
-        
-        toplevel.addView(g,1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,150));  
-        
+        toplevel.addView(g,1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,galleryHeight));  
+
     }
     
 	public String getIMEI(Context context) {
@@ -272,6 +277,8 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 	}
 	@Override
 	public void imagePositionChange(Img img, float x, float y,PointInfo touchPoint) {
+		
+		
 		int pos=adapt.getBitmapHash(img.bitmap);
 		int goodx=(pos % pieceCount) * DeltaWidth;
 		int goody=(pos / pieceCount) * DeltaHeight;
@@ -279,7 +286,9 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 		int cury=(int) (y-DeltaHeight/2);
 		int delta=Math.max(Math.abs(goodx-curx),Math.abs(goody-cury));
 		
-		if (delta<15){			
+		//Log.d("", "curx "+curx+" cury:"+cury);
+		
+		if (delta<minAutoPlaceDelta){			
 			int setx=goodx+DeltaWidth/2;
 			int sety=goody+DeltaHeight/2;
 			p.setImgPosition(img,setx,sety,true);
@@ -290,6 +299,9 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 				if (cury<0) cury=0;
 				if (curx>p.getWidth()-DeltaWidth) curx=p.getWidth()-DeltaWidth;
 				if (cury>p.getHeight()-DeltaHeight) cury=p.getHeight()-DeltaHeight;
+				
+				Log.d("", "set curx "+curx+" cury:"+cury);
+				
 				int setx=curx+DeltaWidth/2;
 				int sety=cury+DeltaHeight/2;
 				p.setImgPosition(img,setx,sety,false);
@@ -363,9 +375,14 @@ public class PuzzleActivity extends Activity implements PhotoSorterDelegate {
 		
 		toplevel.updateViewLayout(cnt, new LinearLayout.LayoutParams(cnt.getWidth(),cnt.getHeight()));
 		
-		adapt=new ImageAdapter(this);
-		g.setAdapter(adapt);
-		g.invalidate();
-        if (adapt.getCount()>0) g.setSelection(adapt.getCount()/2);
+		new Handler().post(new Runnable(){
+			@Override
+			public void run() {
+		        adapt=new ImageAdapter(PuzzleActivity.this);
+				g.setAdapter(adapt);
+		        if (adapt.getCount()>0) g.setSelection(adapt.getCount()/2);
+			}
+		});
+		
 	}
 }
