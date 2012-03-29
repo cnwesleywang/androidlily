@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -131,6 +132,9 @@ public class PhotoSorterView extends View implements MultiTouchObjectCanvas<Phot
 		public void draw(Canvas canvas) {
 			drawable.setBounds((int) minX, (int) minY, (int) maxX, (int) maxY);
 			drawable.draw(canvas);
+			if (fixedImg.indexOf(this)>=0){
+				canvas.drawRect(new Rect((int) minX, (int) minY, (int) maxX, (int) maxY), mLinePaintSingleTouch);
+			}
 		}
 
 		public Drawable getDrawable() {
@@ -222,7 +226,7 @@ public class PhotoSorterView extends View implements MultiTouchObjectCanvas<Phot
 		//	mImages.add(new Img(IMAGES[i], res));
 
 		mLinePaintSingleTouch.setColor(Color.GREEN);
-		mLinePaintSingleTouch.setStrokeWidth(5);
+		mLinePaintSingleTouch.setStrokeWidth(1);
 		mLinePaintSingleTouch.setStyle(Style.STROKE);
 		mLinePaintSingleTouch.setAntiAlias(true);
 		mLinePaintMultiTouchCoords.setColor(Color.RED);
@@ -261,8 +265,9 @@ public class PhotoSorterView extends View implements MultiTouchObjectCanvas<Phot
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		int n = mImages.size();
-		for (int i = 0; i < n; i++)
+		for (int i = 0; i < n; i++){
 			mImages.get(i).draw(canvas);
+		}
 		if (mShowDebugInfo)
 			drawMultitouchDebugMarks(canvas);
 	}
