@@ -26,6 +26,10 @@ public class JumpView extends View{
 	private int curState=WAIT_FIX_FROM;
 	private int curFromX=-1;
 	private int curFromY=-1;
+
+	private int XDelta=0;
+	private int YDelta=0;
+	
 	private boolean inAnimation=false;
 	private String path="";
 	private Bitmap cover;
@@ -137,7 +141,7 @@ public class JumpView extends View{
 	}
 
 	private void redrawSquar(int x, int y) {
-		this.invalidate(new Rect(x*cellWidth,y*cellHeight,(x+1)*cellWidth,(y+1)*cellHeight));
+		this.invalidate(new Rect(x*cellWidth+XDelta,y*cellHeight+YDelta,(x+1)*cellWidth+XDelta,(y+1)*cellHeight+YDelta));
 	}
 
 	@Override
@@ -147,6 +151,12 @@ public class JumpView extends View{
 		int rowNum=datamodel.value.length;
 		int width=this.getWidth()/datamodel.value[0].length;
 		int height=this.getHeight()/rowNum;
+		if (width>height){
+			XDelta=(this.getWidth()-datamodel.value[0].length*height)/2;
+		}
+		else{
+			YDelta=(this.getHeight()-rowNum*width)/2;
+		}
 		width=Math.min(width, height);
 		height=width;
 		this.cellWidth=width;
@@ -157,16 +167,16 @@ public class JumpView extends View{
 				paint.setColor(0xFF000000);
 				paint.setStyle(Style.STROKE);
 				paint.setStrokeWidth(1);
-				canvas.drawRect(new Rect(j*width, i*height, (j+1)*width,(i+1)*height), paint);
+				canvas.drawRect(new Rect(j*width+XDelta, i*height+YDelta, (j+1)*width+XDelta,(i+1)*height+YDelta), paint);
 				int idx=datamodel.value[i][j];
 				if ((idx>=0) && (idx<bitmaps.size())){
 					Bitmap bmp=bitmaps.get(idx);
 					canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
-							new Rect(j*width,i*height,(j+1)*width,(i+1)*height), null);
+							new Rect(j*width+XDelta,i*height+YDelta,(j+1)*width+XDelta,(i+1)*height+YDelta), null);
 					
 					if ((j==curFromX) && (i==curFromY)){
-						canvas.drawBitmap(cover, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
-								new Rect(j*width,i*height,(j+1)*width,(i+1)*height), null);
+						canvas.drawBitmap(cover, new Rect(0,0,cover.getWidth(),cover.getHeight()),
+								new Rect(j*width+XDelta,i*height+YDelta,(j+1)*width+XDelta,(i+1)*height+YDelta), null);
 						//paint=new Paint();
 						//paint.setColor(0xFFFF0000);
 						//paint.setStrokeWidth(3);

@@ -14,19 +14,19 @@
             android:id="@+id/btn01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button" android:background="@drawable/n01"/>
+            android:background="@drawable/n01"/>
 
         <Button
             android:id="@+id/btn02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button" android:background="@drawable/n02" android:layout_marginTop="10dip"/>
+            android:background="@drawable/n02" android:layout_marginTop="10dip"/>
 
         <Button
             android:id="@+id/btn03"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button" android:background="@drawable/n03" android:layout_marginTop="10dip"/>
+            android:background="@drawable/n03" android:layout_marginTop="10dip"/>
 
     </LinearLayout>
 
