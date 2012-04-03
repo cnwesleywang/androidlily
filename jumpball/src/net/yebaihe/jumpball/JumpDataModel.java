@@ -79,6 +79,7 @@ public class JumpDataModel {
 		//}
 		
 		int currlen=lineBase.size();
+		if (currlen>800) return "";//just for safe
 		for (int i=lastCheck;i<currlen;i++){
 			String path=lineBase.get(i);
 			String lastpos=path.substring(path.length()-4);
@@ -125,7 +126,7 @@ public class JumpDataModel {
 				String newpos=String.format("%02d%02d", newx,newy);
 				if (!inPath(newpos,path)){
 					String newpath=String.format("%s%s", path,newpos);
-					if (!lineBase.contains(newpath)){
+					if (lineBase.indexOf(newpath)<0){
 						lineBase.add(newpath);
 					}
 				}

@@ -27,7 +27,7 @@ public class Index extends Activity{
 			@Override
 			public void onClick(View arg0) {
 				Intent i=new Intent(Index.this,JumpballActivity.class);
-				i.putExtra("eachtime", 2);
+				i.putExtra("eachtime", 3);
 				i.putExtra("ballnum", 5);
 				startActivity(i);
 			}

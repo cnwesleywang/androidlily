@@ -28,12 +28,14 @@ public class JumpView extends View{
 	private int curFromY=-1;
 	private boolean inAnimation=false;
 	private String path="";
+	private Bitmap cover;
 
 	public JumpView(Context context) {
 		super(context);
 		for (int i=0;i<JumpballActivity.RES_NUM;i++){
 			bitmaps.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.b01+i));
 		}
+		cover=BitmapFactory.decodeResource(context.getResources(), R.drawable.b00);
 	}
 
 	@Override
@@ -52,6 +54,8 @@ public class JumpView extends View{
 		int x=(int) (event.getX()/this.cellWidth);
 		int y=(int) (event.getY()/this.cellHeight);
 		Log.d("", "x:"+x+" y:"+y);
+		if (y>datamodel.value.length-1) return false;
+		if (x>datamodel.value[y].length-1) return false;
 		
 		if (curState==WAIT_FIX_FROM){
 			if (datamodel.value[y][x]!=-1){
@@ -143,12 +147,14 @@ public class JumpView extends View{
 		int rowNum=datamodel.value.length;
 		int width=this.getWidth()/datamodel.value[0].length;
 		int height=this.getHeight()/rowNum;
+		width=Math.min(width, height);
+		height=width;
 		this.cellWidth=width;
 		this.cellHeight=height;
 		for (int i=0;i<datamodel.value.length;i++){
 			for (int j=0;j<datamodel.value[i].length;j++){
 				Paint paint=new Paint();
-				paint.setColor(0xFF0000FF);
+				paint.setColor(0xFF000000);
 				paint.setStyle(Style.STROKE);
 				paint.setStrokeWidth(1);
 				canvas.drawRect(new Rect(j*width, i*height, (j+1)*width,(i+1)*height), paint);
@@ -157,11 +163,14 @@ public class JumpView extends View{
 					Bitmap bmp=bitmaps.get(idx);
 					canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
 							new Rect(j*width,i*height,(j+1)*width,(i+1)*height), null);
+					
 					if ((j==curFromX) && (i==curFromY)){
-						paint=new Paint();
-						paint.setColor(0xFFFF0000);
-						paint.setStrokeWidth(3);
-						canvas.drawCircle(j*width+width/2, i*height+height/2, width/4, paint);
+						canvas.drawBitmap(cover, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
+								new Rect(j*width,i*height,(j+1)*width,(i+1)*height), null);
+						//paint=new Paint();
+						//paint.setColor(0xFFFF0000);
+						//paint.setStrokeWidth(3);
+						//canvas.drawCircle(j*width+width/2, i*height+height/2, width/4, paint);
 					}
 				}
 			}
