@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:myapp="http://schemas.android.com/apk/res/net.yebaihe.jumpball"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" android:background="#FFA62450">
+    android:orientation="vertical" android:background="@drawable/jumpbg">
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -40,5 +41,6 @@
         android:orientation="vertical" >
 
     </LinearLayout>
-
+<cn.domob.android.ads.DomobAdView android:layout_width="fill_parent" android:layout_height="wrap_content" myapp:keywords="game" myapp:spots="androidtest" myapp:refreshInterval="20"/>
+        
 </LinearLayout>

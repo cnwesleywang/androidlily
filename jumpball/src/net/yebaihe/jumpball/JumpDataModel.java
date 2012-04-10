@@ -19,9 +19,13 @@ public class JumpDataModel {
 			{0,2,0,-1,1},
 			{0,2,0,-1,1},
 	};
-	private ArrayList<String> lineBase=new ArrayList<String>();
+	
+	private int[][]lineBase=new int[800][101];
+	
+	//private ArrayList<String> lineBase=new ArrayList<String>();
 	private int lastCheck=0;
 	public int score=0;
+	private int lineBaseLen=-1;
 	
 	JumpDataModel(){
 		init();
@@ -59,75 +63,80 @@ public class JumpDataModel {
 	 * @param y
 	 * @return succ true,otherwise false
 	 */
-	public String move(int curFromX, int curFromY, int x, int y) {
-		lineBase.clear();
-		lineBase.add(String.format("%02d%02d", curFromX,curFromY));
+	public int[] move(int curFromX, int curFromY, int x, int y) {
+		//lineBase.clear();
+		for (int i=0;i<lineBase.length;i++){
+			for (int j=0;j<lineBase[i].length;j++)
+				lineBase[i][j]=-1;
+			lineBase[i][0]=0;
+		}
+		lineBase[0][0]=1;//curFromX;
+		lineBase[0][1]=curFromX;
+		lineBase[0][2]=curFromY;
 		lastCheck=0;
-		String path=findPath(x,y);
-		/*if (path.length()>0){
-			value[y][x]=value[curFromY][curFromX];
-			value[curFromY][curFromX]=-1;
-		}*/
+		lineBaseLen=1;
+		int[] path=findPath(x,y);
 		return path;
 	}
 	
-	private String findPath(int x, int y) {
+	private int[] findPath(int x, int y) {
 		
 		//Log.d("", "curr line base is:");
 		//for (int i=0;i<lineBase.size();i++){
 		//	Log.d("", lineBase.get(i));
 		//}
 		
-		int currlen=lineBase.size();
-		if (currlen>800) return "";//just for safe
+		int currlen=lineBaseLen;
+		if (currlen>=800) return new int[0];//just for safe
 		for (int i=lastCheck;i<currlen;i++){
-			String path=lineBase.get(i);
-			String lastpos=path.substring(path.length()-4);
-			int lastx= Integer.parseInt(lastpos.substring(0, 2));
-			int lasty= Integer.parseInt(lastpos.substring(2));
+			int lastx=lineBase[i][(lineBase[i][0]-1)*2+1];// Integer.parseInt(lastpos.substring(0, 2));
+			int lasty=lineBase[i][(lineBase[i][0]-1)*2+2];// Integer.parseInt(lastpos.substring(2));
 			int lastlastx=-1;
 			int lastlasty=-1;
-			if (path.length()>=8){
-				String lastlastpos=path.substring(path.length()-8,path.length()-4);
-				lastlastx= Integer.parseInt(lastlastpos.substring(0, 2));
-				lastlasty= Integer.parseInt(lastlastpos.substring(2));
+			if (lineBase[i][0]>=2){
+				lastlastx= lineBase[i][(lineBase[i][0]-2)*2+1];
+				lastlasty= lineBase[i][(lineBase[i][0]-2)*2+2];
 			}
 			if (lasty>0){
-				if (checkPos(lastx,lasty-1,lastlastx,lastlasty,x,y,lineBase.get(i))){
-					return lineBase.get(i);
+				if (checkPos(lastx,lasty-1,lastlastx,lastlasty,x,y,i)){
+					return lineBase[i];
 				}
 			}
 			if (lasty<value.length-1){
-				if (checkPos(lastx,lasty+1,lastlastx,lastlasty,x,y,lineBase.get(i))){
-					return lineBase.get(i);
+				if (checkPos(lastx,lasty+1,lastlastx,lastlasty,x,y,i)){
+					return lineBase[i];
 				}
 			}
 			if (lastx>0){
-				if (checkPos(lastx-1,lasty,lastlastx,lastlasty,x,y,lineBase.get(i))){
-					return lineBase.get(i);
+				if (checkPos(lastx-1,lasty,lastlastx,lastlasty,x,y,i)){
+					return lineBase[i];
 				}
 			}
 			if (lastx<value[lasty].length-1){
-				if (checkPos(lastx+1,lasty,lastlastx,lastlasty,x,y,lineBase.get(i))){
-					return lineBase.get(i);
+				if (checkPos(lastx+1,lasty,lastlastx,lastlasty,x,y,i)){
+					return lineBase[i];
 				}
 			}
 		}
-		if (currlen==lineBase.size()) return "";
+		if (currlen==lineBaseLen) return new int[0];
 		lastCheck=currlen;
 		return findPath(x,y);
 	}
 
 	private boolean checkPos(int newx, int newy, int lastlastx, int lastlasty,
-			int x, int y,String path) {
+			int x, int y,int idx) {
 		if ((newx==x)&& (newy==y)) return true;
 		if ((newy!=lastlasty)||(newx!=lastlastx)){
 			if (value[newy][newx]==-1){
-				String newpos=String.format("%02d%02d", newx,newy);
-				if (!inPath(newpos,path)){
-					String newpath=String.format("%s%s", path,newpos);
-					if (lineBase.indexOf(newpath)<0){
-						lineBase.add(newpath);
+				if (!inPath(newx,newy,idx)){
+					if (!newPathExist(newx,newy,idx)){
+						for (int i=1;i<lineBase[idx][0]*2+1;i++){
+							lineBase[lineBaseLen][i]=lineBase[idx][i];
+						}
+						lineBase[lineBaseLen][0]=lineBase[idx][0]+1;
+						lineBase[lineBaseLen][lineBase[idx][0]*2+1]=newx;
+						lineBase[lineBaseLen][lineBase[idx][0]*2+2]=newy;
+						lineBaseLen+=1;
 					}
 				}
 			}
@@ -135,13 +144,30 @@ public class JumpDataModel {
 		return false;
 	}
 
-	private boolean inPath(String newpos, String path) {
-		int idx=path.indexOf(newpos);
-		if (idx>=0){
-			if (idx %4==0){
-				//Log.d("", String.format("%s already include %s",path,newpos));
-				return true;
+	private boolean newPathExist(int newx, int newy, int idx) {
+		for (int i=0;i<lineBaseLen;i++){
+			if (i==idx) continue;
+			boolean same=true;
+			for (int j=1;j<lineBase[i][0]*2+1;j++){
+				if (lineBase[i][j]!=lineBase[idx][j]){
+					same=false;
+					break;
+				}
 			}
+			if (same){
+				if (lineBase[i][0]==lineBase[idx][0]+1){
+					if (lineBase[i][lineBase[idx][0]*2]==newx){
+						if (lineBase[i][lineBase[idx][0]*2+1]==newy) return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean inPath(int x,int y, int idx) {
+		for (int i=0;i<lineBase[idx][0];i++){
+			if ((lineBase[idx][i*2+1]==x) && (lineBase[idx][i*2+2]==y)) return true;
 		}
 		return false;
 	}

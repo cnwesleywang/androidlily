@@ -31,8 +31,9 @@ public class JumpView extends View{
 	private int YDelta=0;
 	
 	private boolean inAnimation=false;
-	private String path="";
+	private int[] path;
 	private Bitmap cover;
+	private int currMoveStep=0;
 
 	public JumpView(Context context) {
 		super(context);
@@ -73,10 +74,11 @@ public class JumpView extends View{
 		else if (curState==WAIT_FIX_TO){
 			if (datamodel.value[y][x]==-1){
 				path=datamodel.move(curFromX,curFromY,x,y);
-				if (path.length()>0){
+				if (path.length>0){
 					Log.d("", "can move");
 					curFromX=-1;
-					curFromY=-1;				
+					curFromY=-1;	
+					currMoveStep=0;
 					showMoveAnimation(x,y);
 				}
 				else{
@@ -105,7 +107,7 @@ public class JumpView extends View{
 	 * @param path 
 	 */
 	private void showMoveAnimation(final int x, final int y) {
-		if (path.length()<=0){
+		if (path[0]==currMoveStep){
 			inAnimation=false;
 			curState=WAIT_FIX_FROM;
 			if (!datamodel.checkAndRemoveLine()){
@@ -119,14 +121,14 @@ public class JumpView extends View{
 			return;
 		}
 		inAnimation=true;
-		int lastx=Integer.parseInt(path.substring(0,2));
-		int lasty=Integer.parseInt(path.substring(2,4));
+		int lastx=path[currMoveStep*2+1];
+		int lasty=path[currMoveStep*2+2];
 		int newx=x;
 		int newy=y;
-		path=path.substring(4);
-		if (path.length()>=4){
-			newx=Integer.parseInt(path.substring(0,2));
-			newy=Integer.parseInt(path.substring(2,4));
+		currMoveStep++;
+		if (currMoveStep<path[0]){
+			newx=path[currMoveStep*2+1];
+			newy=path[currMoveStep*2+2];
 		}
 		new Handler().postDelayed(new Runnable(){
 			@Override
